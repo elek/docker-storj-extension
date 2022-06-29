@@ -1,0 +1,23 @@
+version: 0.1
+log:
+  level: debug
+  fields:
+    service: registry
+    environment: development
+storage:
+  storj:
+    bucket: registry
+http:
+    addr: :5000
+    debug:
+        addr: :5001
+        prometheus:
+            enabled: true
+            path: /metrics
+    headers:
+        X-Content-Type-Options: [nosniff]
+health:
+  storagedriver:
+    enabled: true
+    interval: 10s
+    threshold: 3
