@@ -21,6 +21,6 @@ LABEL org.opencontainers.image.title="Storj Decentralized Docker Registry" \
     com.docker.extension.additional-urls='[{"title":"Storj decentralized cloud","url":"https://storj.io"}]' \
     com.docker.extension.changelog="<ul><li>Initial version</li></ul>"
 
-COPY --from=client-builder /app/client/dist ui
+COPY --from=client-builder /app/client/build ui
 COPY metadata.json .
 
