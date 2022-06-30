@@ -2,6 +2,7 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
+  "homepage": "./",
   "dependencies": {
     "@docker/docker-mui-theme": "^0.0.7",
     "@docker/extension-api-client": "^0.2.3",

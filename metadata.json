@@ -1,7 +1,7 @@
 {
   "ui": {
     "dashboard-tab": {
-      "title": "Storj decentralized Docker Registry",
+      "title": "Storj Docker Registry",
       "root": "/ui",
       "src": "index.html"
     }

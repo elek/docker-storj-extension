@@ -10,7 +10,7 @@ RUN --mount=type=cache,target=/usr/local/share/.cache/yarn-${TARGETARCH} yarn
 COPY client /app/client
 RUN --mount=type=cache,target=/usr/local/share/.cache/yarn-${TARGETARCH} yarn build
 
-FROM scratch
+FROM alpine
 LABEL org.opencontainers.image.title="Storj Decentralized Docker Registry" \
     org.opencontainers.image.description="An extension to start a local registry backed by decentralized Storj." \
     org.opencontainers.image.vendor="Storj Labs" \
@@ -21,6 +21,6 @@ LABEL org.opencontainers.image.title="Storj Decentralized Docker Registry" \
     com.docker.extension.additional-urls='[{"title":"Storj decentralized cloud","url":"https://storj.io"}]' \
     com.docker.extension.changelog="<ul><li>Initial version</li></ul>"
 
-COPY --from=client-builder /app/client/build ui
+COPY --from=client-builder /app/client/build /ui
 COPY metadata.json .
 

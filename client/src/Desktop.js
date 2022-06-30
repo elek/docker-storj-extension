@@ -6,9 +6,9 @@ export class Service {
         this.ddClient = createDockerDesktopClient();
     }
 
-    static async StartContainer(bucket, grant) {
+    async StartContainer(bucket, grant) {
         const result = await this.ddClient.docker.cli.exec('run', [
-            '--d',
+            '-d',
             '-e',
             'REGISTRY_STORAGE_STORJ_ACCESSGRANT=' + grant,
             '-e',
@@ -17,7 +17,7 @@ export class Service {
             '9999:5000',
             'ghcr.io/elek/distribution:618d19fb',
         ]);
-        console.log(result.parseJsonObject());
+        console.log(result);
         alert("Registry has been started")
     }
 }

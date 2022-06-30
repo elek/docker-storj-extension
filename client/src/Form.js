@@ -12,6 +12,8 @@ class RunForm extends React.Component {
         this.handleChangeBucket = this.handleChangeBucket.bind(this);
         this.handleChangeAccessGrant = this.handleChangeAccessGrant.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+
+        this.service = new Service();
     }
 
     handleChangeBucket(event) {
@@ -24,7 +26,7 @@ class RunForm extends React.Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        Service.StartContainer(this.state.bucket, this.state.accessgrant);
+        this.service.StartContainer(this.state.bucket, this.state.accessgrant);
     }
 
     render() {
