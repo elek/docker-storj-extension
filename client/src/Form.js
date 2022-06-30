@@ -31,11 +31,9 @@ class RunForm extends React.Component {
 
     render() {
         return (
-            <Stack   spacing={{ xs: 1, sm: 2, md: 4 }}>
-                <p>Bucket:</p>
-                <TextField value={this.state.bucket} variant="filled" onChange={this.handleChangeBucket}/>
-                <p>Access grant:</p>
-                <TextField value={this.state.accessgrant} variant="filled" onChange={this.handleChangeAccessGrant}/>
+            <Stack spacing={{ xs: 1, sm: 2, md: 4}} xl={8}>
+                <TextField label="bucket" value={this.state.bucket} variant="filled" onChange={this.handleChangeBucket}/>
+                <TextField label="access grant" value={this.state.accessgrant} variant="filled" onChange={this.handleChangeAccessGrant} />
                 <Button variant="outlined" onClick={this.handleSubmit}>Start registry</Button>
             </Stack>
         );
