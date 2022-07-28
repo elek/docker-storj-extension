@@ -2,18 +2,17 @@ import React from "react";
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import {Stack} from "@mui/material";
-import {Service} from "./Desktop";
+import {Service} from "./Service";
 
 class RunForm extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {bucket: '',accessgrant: ''};
+        this.cb = props.cb
+        this.state = {bucket: '', accessgrant: ''};
 
         this.handleChangeBucket = this.handleChangeBucket.bind(this);
         this.handleChangeAccessGrant = this.handleChangeAccessGrant.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-
-        this.service = new Service();
     }
 
     handleChangeBucket(event) {
@@ -26,7 +25,10 @@ class RunForm extends React.Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        this.service.StartContainer(this.state.bucket, this.state.accessgrant);
+        Service.CreateContainer(this.state.bucket, this.state.accessgrant);
+        Service.StartContainer()
+        // delayed UI update
+        setTimeout(this.cb, 1000)
     }
 
     render() {
