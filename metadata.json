@@ -4,6 +4,9 @@
       "title": "Storj Docker Registry",
       "root": "/ui",
       "src": "index.html"
+    },
+    "vm": {
+      "composefile": "docker-compose.yaml"
     }
   }
 }

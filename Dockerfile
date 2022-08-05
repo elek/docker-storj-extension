@@ -1,14 +1,14 @@
 FROM node:17.7-alpine3.14 AS client-builder
-WORKDIR /app/client
-# cache packages in layer
-COPY client/package.json /app/client/package.json
-COPY client/yarn.lock /app/client/yarn.lock
+WORKDIR /app/web
 ARG TARGETARCH
-RUN yarn config set cache-folder /usr/local/share/.cache/yarn-${TARGETARCH}
-RUN --mount=type=cache,target=/usr/local/share/.cache/yarn-${TARGETARCH} yarn
-# install
-COPY client /app/client
-RUN --mount=type=cache,target=/usr/local/share/.cache/yarn-${TARGETARCH} yarn build
+COPY web /app/web
+RUN npm install
+RUN npx vite build
+
+FROM golang:1.18-alpine as backend-builder
+WORKDIR /app
+ADD . /app
+RUN go build -o ./backend
 
 FROM alpine
 LABEL org.opencontainers.image.title="Storj Decentralized Docker Registry" \
@@ -21,6 +21,8 @@ LABEL org.opencontainers.image.title="Storj Decentralized Docker Registry" \
     com.docker.extension.additional-urls='[{"title":"Storj decentralized cloud","url":"https://storj.io"}]' \
     com.docker.extension.changelog="<ul><li>Initial version</li></ul>"
 
-COPY --from=client-builder /app/client/build /ui
+COPY --from=client-builder /app/web/dist /ui
+COPY --from=backend-builder /app/backend /backend
 COPY metadata.json .
-
+ADD docker-compose.yaml .
+CMD ["/backend/docker-storj-extension"]

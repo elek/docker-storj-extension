@@ -74,6 +74,16 @@ OBJ     2022-06-30 11:17:21    71         docker/registry/v2/repositories/elek/h
 
 ## Development
 
+Extension can be developed locally with:
+
+```
+#only first time
+npm install
+
+
+cd client
+npx vite
+```
 New images can be built and pushed in one step:
 
 ```
