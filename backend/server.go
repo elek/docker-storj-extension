@@ -22,7 +22,7 @@ var Error = errs.Class("api server")
 
 // APIConfig holds API endpoint configuration.
 type APIConfig struct {
-	Address string `default:"127.0.0.1:7070" help:"Address to listen on."`
+	Address string `default:"socket:/run/guest-services/run.socket" help:"Address to listen on."`
 }
 
 // Server represents the backend API server.
@@ -40,7 +40,6 @@ func NewServer(log *zap.Logger, listener net.Listener) *Server {
 	router := mux.NewRouter()
 	router.Name("api").PathPrefix("/api/v0")
 	apiRouter := router.GetRoute("api").Subrouter()
-
 	return &Server{
 		log:      log,
 		listener: listener,

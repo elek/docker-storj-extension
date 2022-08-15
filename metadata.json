@@ -1,12 +1,23 @@
 {
+  "icon": "storj.svg",
   "ui": {
     "dashboard-tab": {
       "title": "Storj Docker Registry",
       "root": "/ui",
-      "src": "index.html"
-    },
-    "vm": {
-      "composefile": "docker-compose.yaml"
+      "src": "index.html",
+      "backend": {
+        "socket": "run.socket",
+        "host-socket": "",
+        "named-pipe": ""
+      }
+    }
+  },
+  "vm": {
+    "composefile": "docker-compose.yaml",
+    "exposes": {
+      "socket": "run.socket",
+      "host-socket": "",
+      "named-pipe": ""
     }
   }
 }

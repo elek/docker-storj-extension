@@ -8,8 +8,11 @@ import (
 	"github.com/spacemonkeygo/monkit/v3"
 	"github.com/zeebo/errs"
 	"net"
+	"os"
+	"path"
 	"storj.io/private/debug"
 	"storj.io/storj/private/lifecycle"
+	"strings"
 
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
@@ -56,7 +59,16 @@ func NewApp(log *zap.Logger, config Config) (*App, error) {
 		service := NewService(log)
 		e := NewEndpoint(log, service)
 
-		app.API.Listener, err = net.Listen("tcp", config.API.Address)
+		address := config.API.Address
+		if strings.HasPrefix(address, "socket:") {
+			socketFile := strings.Split(address, ":")[1]
+			_ = os.MkdirAll(path.Dir(socketFile), 0755)
+			log.Info("Starting socket listener", zap.String("socket", socketFile))
+			app.API.Listener, err = net.Listen("unix", socketFile)
+		} else {
+			log.Info("Starting TCP listener", zap.String("address", address))
+			app.API.Listener, err = net.Listen("tcp", address)
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -69,9 +81,6 @@ func NewApp(log *zap.Logger, config Config) (*App, error) {
 			Run:   app.API.Server.Run,
 			Close: app.API.Server.Close,
 		})
-	}
-	{ // wallets
-		//TODO
 	}
 
 	return app, nil

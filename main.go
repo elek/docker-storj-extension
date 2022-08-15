@@ -6,6 +6,7 @@ package main
 import (
 	"context"
 	"github.com/elek/docker-storj-extension/backend"
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/zeebo/errs"
 	"go.uber.org/zap"
@@ -25,12 +26,33 @@ func init() {
 func main() {
 	pflag.Parse()
 
-	if err := run(context.Background(), Flags.Config); err != nil {
+	c := cobra.Command{}
+
+	run := cobra.Command{
+		Use: "run",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runServer(context.Background(), Flags.Config)
+		},
+	}
+	c.AddCommand(&run)
+
+	dp := cobra.Command{
+		Use: "dispatch",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			n := backend.NewCliDispatcher()
+			return n.Dispatch(args[0], args[1:])
+		},
+	}
+	c.AddCommand(&dp)
+
+	err := c.Execute()
+	if err != nil {
 		log.Fatalf("%++v", err)
 	}
+
 }
 
-func run(ctx context.Context, config backend.Config) error {
+func runServer(ctx context.Context, config backend.Config) error {
 	logger := zap.NewExample()
 	defer func() {
 		if err := logger.Sync(); err != nil {

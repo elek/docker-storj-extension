@@ -3,11 +3,13 @@ import {createRouter, createWebHashHistory} from 'vue-router'
 import Push from "./components/Push.vue";
 import Pull from "./components/Pull.vue";
 import Main from "./components/Main.vue";
+import Configure from "./components/Configure.vue";
 
 const routes = [
     {path: '/', component: Main},
     {path: '/push', component: Push},
-    {path: '/pull', component: Pull}
+    {path: '/pull', component: Pull},
+    {path: '/config', component: Configure}
 ]
 
 

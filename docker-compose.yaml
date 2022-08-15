@@ -3,5 +3,6 @@ services:
     image: ${DESKTOP_PLUGIN_IMAGE}
     volumes:
       - /var/run/docker.sock.raw:/var/run/docker.sock
-    ports:
-      9999:9999
+#    cap_add:
+#      - DAC_OVERRIDE
+#      - FOWNER

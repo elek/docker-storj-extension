@@ -11,6 +11,7 @@ ADD . /app
 RUN go build -o ./backend
 
 FROM alpine
+RUN apk add docker
 LABEL org.opencontainers.image.title="Storj Decentralized Docker Registry" \
     org.opencontainers.image.description="An extension to start a local registry backed by decentralized Storj." \
     org.opencontainers.image.vendor="Storj Labs" \
@@ -21,8 +22,10 @@ LABEL org.opencontainers.image.title="Storj Decentralized Docker Registry" \
     com.docker.extension.additional-urls='[{"title":"Storj decentralized cloud","url":"https://storj.io"}]' \
     com.docker.extension.changelog="<ul><li>Initial version</li></ul>"
 
+RUN mkdir -p /run/guest-services/
 COPY --from=client-builder /app/web/dist /ui
 COPY --from=backend-builder /app/backend /backend
 COPY metadata.json .
 ADD docker-compose.yaml .
-CMD ["/backend/docker-storj-extension"]
+ADD storj.svg .
+CMD ["/backend/docker-storj-extension","run"]
