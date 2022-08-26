@@ -21,7 +21,8 @@ var save = function () {
   Api.configure(bucket.value, grant.value).then(function () {
     message.value = "Configuration has been saved successfully"
   }, function (e) {
-    error = e
+    error.value = e.response.data.error
+
   })
 }
 </script>

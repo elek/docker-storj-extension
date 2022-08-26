@@ -9,17 +9,20 @@ var error = ref("")
 
 var refresh = function (){
   Api.status().then(function (s) {
-    status.value = s.status
-  })
+        status.value = s.data.status
+      }, function () {
+        error.value = e.response.data.error
+      }
+  )
 }
 refresh()
 
 var stop = function () {
   Api.stop().then(function () {
-    message.value = "Container is beeing stopped"
+    message.value = "Container is being stopped"
     refresh()
   }, function (e) {
-    error = e
+    error.value = e.response.data.error
   })
 }
 
@@ -28,7 +31,7 @@ var start = function () {
     message.value = "Container is starting"
     refresh()
   }, function (e) {
-    error = e
+    error.value = e.response.data.error
   })
 }
 
@@ -42,7 +45,6 @@ var start = function () {
     <div v-if="status === 'unkown'">
       <p>Checking the state of the registry container. </p>
     </div>
-
     <div v-if="status === 'missing'">
       <p>Registry is not yet configured. Please configured it under the
         <router-link to="/config">configuration menu</router-link>

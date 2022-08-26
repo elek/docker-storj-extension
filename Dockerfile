@@ -19,6 +19,7 @@ LABEL org.opencontainers.image.title="Storj Decentralized Docker Registry" \
     com.docker.desktop.extension.icon="https://assets.website-files.com/602eda09fc78afc76e9706b6/609177f5057ffc468b6ec24a_logo-mark.svg" \
     com.docker.extension.detailed-description="<h1>Description</h1><p>This extension helps to start a local docker registry which is backed by Storj decentralized storage.</p>" \
     com.docker.extension.publisher-url="https://storj.io" \
+    com.docker.extension.screenshots='[{"alt":"main screenshot","url":"https://assets.website-files.com/602eda09fc78afc76e9706b6/609177f5057ffc468b6ec24a_logo-mark.svg"}]' \
     com.docker.extension.additional-urls='[{"title":"Storj decentralized cloud","url":"https://storj.io"}]' \
     com.docker.extension.changelog="<ul><li>Initial version</li></ul>"
 

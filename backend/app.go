@@ -63,6 +63,7 @@ func NewApp(log *zap.Logger, config Config) (*App, error) {
 		if strings.HasPrefix(address, "socket:") {
 			socketFile := strings.Split(address, ":")[1]
 			_ = os.MkdirAll(path.Dir(socketFile), 0755)
+			_ = os.Remove(socketFile)
 			log.Info("Starting socket listener", zap.String("socket", socketFile))
 			app.API.Listener, err = net.Listen("unix", socketFile)
 		} else {

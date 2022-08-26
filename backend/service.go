@@ -4,7 +4,9 @@
 package backend
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/zeebo/errs"
 	"go.uber.org/zap"
 	"os/exec"
@@ -44,6 +46,9 @@ func (s Service) Create(bucket string, grant string) error {
 		"-e", "REGISTRY_STORAGE_STORJ_ACCESSGRANT="+grant,
 		"ghcr.io/elek/distribution:618d19fb")
 	out, err := c.CombinedOutput()
+	if err != nil {
+		return errs.New(err.Error() + " " + string(out))
+	}
 	s.log.Info("Container has been created", zap.String("output", string(out)))
 	return err
 }
@@ -105,6 +110,50 @@ type Image struct {
 	Size string
 }
 
+func (s Service) RemoteImages() ([]Image, error) {
+	images := make([]Image, 0)
+	ctx := context.TODO()
+	url := "http://localhost:9999/v2/_catalog"
+	catalog, err := httpCall(ctx, "GET", url, nil)
+	if err != nil {
+		return images, errs.Wrap(err)
+	}
+
+	k := struct {
+		Repositories []string `json:"repositories"`
+	}{}
+	err = json.Unmarshal(catalog, &k)
+	if err != nil {
+		return nil, errs.Wrap(err)
+	}
+
+	for _, name := range k.Repositories {
+		url = fmt.Sprintf("http://localhost:9999/v2/%s/tags/list", name)
+		tagsResponse, err := httpCall(ctx, "GET", url, nil)
+		if err != nil {
+			return nil, errs.Wrap(err)
+		}
+
+		tags := struct {
+			Name string   `json:"name"`
+			Tags []string `json:"tags"`
+		}{}
+		err = json.Unmarshal(tagsResponse, &tags)
+		if err != nil {
+			return nil, errs.Wrap(err)
+		}
+
+		for _, tag := range tags.Tags {
+			images = append(images, Image{
+				Name: name,
+				Tag:  tag,
+			})
+		}
+	}
+
+	return images, nil
+
+}
 func (s Service) LocalImages() ([]Image, error) {
 	c := exec.Command("docker",
 		"images",
@@ -138,13 +187,12 @@ func (s Service) LocalImages() ([]Image, error) {
 }
 
 func (s Service) Push(name string, tag string) error {
-	//remove
+	name = strings.Trim(name, "\n")
 	parts := strings.Split(name, "/")
+	ref := name
 	if len(parts) > 2 {
-		name = parts[0] + "/" + parts[1]
+		ref = name + ":" + tag
 	}
-
-	ref := name + ":" + tag
 
 	c := exec.Command("docker",
 		"tag",
@@ -169,12 +217,12 @@ func (s Service) Push(name string, tag string) error {
 	return nil
 }
 
-func (s Service) Pull() error {
+func (s Service) Pull(name string, tag string) error {
 	c := exec.Command("docker",
-		"stop",
-		"storj-registry")
+		"pull",
+		"localhost:9999/"+name+":"+tag)
 	out, err := c.CombinedOutput()
-	s.log.Info("Container is stopped", zap.String("output", string(out)))
+	s.log.Info("Container is pulled", zap.String("output", string(out)))
 	if err != nil {
 		return errs.New(string(out))
 	}

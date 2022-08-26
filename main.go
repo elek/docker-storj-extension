@@ -8,7 +8,6 @@ import (
 	"github.com/elek/docker-storj-extension/backend"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"github.com/zeebo/errs"
 	"go.uber.org/zap"
 	"log"
 	"storj.io/private/cfgstruct"
@@ -54,11 +53,6 @@ func main() {
 
 func runServer(ctx context.Context, config backend.Config) error {
 	logger := zap.NewExample()
-	defer func() {
-		if err := logger.Sync(); err != nil {
-			log.Println(err)
-		}
-	}()
 
 	app, err := backend.NewApp(logger.Named("storj-extension"), config)
 	if err != nil {
@@ -66,6 +60,7 @@ func runServer(ctx context.Context, config backend.Config) error {
 	}
 
 	runErr := app.Run(ctx)
-	closeErr := app.Close()
-	return errs.Combine(runErr, closeErr)
+	defer app.Close()
+
+	return runErr
 }

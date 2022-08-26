@@ -32,7 +32,7 @@ func (endpoint *Endpoint) Register(router *mux.Router) {
 	router.HandleFunc("/stop", endpoint.Stop).Methods(http.MethodPost)
 	router.HandleFunc("/configure", endpoint.Configure).Methods(http.MethodPost)
 	router.HandleFunc("/images/local", endpoint.LocalImages).Methods(http.MethodGet)
-	router.HandleFunc("/images/remote", endpoint.Configure).Methods(http.MethodGet)
+	router.HandleFunc("/images/remote", endpoint.RemoteImages).Methods(http.MethodGet)
 	router.HandleFunc("/push", endpoint.Push).Methods(http.MethodPost)
 	router.HandleFunc("/pull", endpoint.Pull).Methods(http.MethodPost)
 }
@@ -84,7 +84,7 @@ func (endpoint *Endpoint) Configure(w http.ResponseWriter, r *http.Request) {
 
 	err = endpoint.service.Create(req.Bucket, req.Grant)
 	if err != nil {
-		endpoint.serveJSONError(w, http.StatusBadRequest, err)
+		endpoint.serveJSONError(w, http.StatusInternalServerError, err)
 		return
 	}
 }
@@ -128,7 +128,7 @@ func (endpoint *Endpoint) Pull(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = endpoint.service.Push(req.Image, req.Tag)
+	err = endpoint.service.Pull(req.Image, req.Tag)
 	if err != nil {
 		endpoint.serveJSONError(w, http.StatusBadRequest, err)
 		return
@@ -165,6 +165,23 @@ func (endpoint *Endpoint) LocalImages(w http.ResponseWriter, r *http.Request) {
 	defer mon.Task()(&ctx)(&err)
 
 	images, err := endpoint.service.LocalImages()
+	if err != nil {
+		endpoint.serveJSONError(w, http.StatusInternalServerError, err)
+		return
+	}
+	err = json.NewEncoder(w).Encode(&images)
+	if err != nil {
+		endpoint.serveJSONError(w, http.StatusInternalServerError, err)
+		return
+	}
+}
+
+func (endpoint *Endpoint) RemoteImages(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	var err error
+	defer mon.Task()(&ctx)(&err)
+
+	images, err := endpoint.service.RemoteImages()
 	if err != nil {
 		endpoint.serveJSONError(w, http.StatusInternalServerError, err)
 		return

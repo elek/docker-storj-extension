@@ -5,14 +5,19 @@ import {Api} from "../api";
 
 var images = ref([])
 var message = ref("")
+var error = ref("")
 
 Api.localImages().then(function (r) {
   images.value = r.data
 })
 
 var push = function(name, tag) {
-  Api.push(name, tag).then(function (r) {
-    message.value = "Push has been started"
+  error.value = ""
+  message.value = ""
+  Api.push(name, tag).then(function () {
+    message.value = "Container has been pushed successfully"
+  }, function (e) {
+    error.value = e.response.data.error
   })
 }
 
@@ -20,6 +25,8 @@ var push = function(name, tag) {
 
 <template>
   <h2>Local images</h2>
+  <p class="alert alert-danger" role="alert" v-if="error">{{ error }}</p>
+  <p class="alert alert-success" role="alert" v-if="message" v-html="message"></p>
   <table class="table">
     <thead>
     <tr>
