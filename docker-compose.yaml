@@ -3,6 +3,9 @@ services:
     image: ${DESKTOP_PLUGIN_IMAGE}
     volumes:
       - /var/run/docker.sock.raw:/var/run/docker.sock
+    ports:
+      - 5000:5000
+    #TODO, can we remove?
     cap_add:
       - DAC_OVERRIDE
       - FOWNER

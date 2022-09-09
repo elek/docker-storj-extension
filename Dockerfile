@@ -10,6 +10,8 @@ WORKDIR /app
 ADD . /app
 RUN go build -o ./backend
 
+FROM ghcr.io/elek/distribution:618d19fb as registry
+
 FROM alpine
 RUN apk add docker
 LABEL org.opencontainers.image.title="Storj Decentralized Docker Registry" \
@@ -26,6 +28,8 @@ LABEL org.opencontainers.image.title="Storj Decentralized Docker Registry" \
 RUN mkdir -p /run/guest-services/
 COPY --from=client-builder /app/web/dist /ui
 COPY --from=backend-builder /app/backend /backend
+COPY --from=registry /bin/registry /usr/bin/registry
+COPY config.yml .
 COPY metadata.json .
 ADD docker-compose.yaml .
 ADD storj.svg .

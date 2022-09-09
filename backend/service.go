@@ -13,6 +13,8 @@ import (
 	"strings"
 )
 
+var base = "127.0.0.1:5000"
+
 // ErrService - pin service error class.
 var ErrService = errs.Class("docker service")
 
@@ -23,14 +25,18 @@ type ServiceConfig struct {
 //
 // architecture: Service
 type Service struct {
-	log      *zap.Logger
-	endpoint string
+	log        *zap.Logger
+	endpoint   string
+	supervisor *Supervisor
 }
 
 // NewService creates new token service instance.
 func NewService(log *zap.Logger) *Service {
 	return &Service{
 		log: log,
+		supervisor: &Supervisor{
+			log: log,
+		},
 	}
 }
 
@@ -54,53 +60,15 @@ func (s Service) Create(bucket string, grant string) error {
 }
 
 func (s Service) Status() (string, error) {
-	c := exec.Command("docker",
-		"inspect",
-		"storj-registry")
-	out, err := c.CombinedOutput()
-	if err != nil {
-		return "missing", nil
-	}
-	var res []struct {
-		State struct {
-			Status  string
-			Running bool
-			Paused  bool
-		}
-	}
-
-	err = json.Unmarshal(out, &res)
-	if err != nil {
-		return "", errs.Wrap(err)
-	}
-	if !res[0].State.Running {
-		return "stopped", nil
-	}
-	return "running", nil
+	return s.supervisor.Status()
 }
 
 func (s Service) Start() error {
-	c := exec.Command("docker",
-		"start",
-		"storj-registry")
-	out, err := c.CombinedOutput()
-	s.log.Info("Container is started", zap.String("output", string(out)))
-	if err != nil {
-		return errs.New(string(out))
-	}
-	return nil
+	return s.supervisor.Start()
 }
 
 func (s Service) Stop() error {
-	c := exec.Command("docker",
-		"stop",
-		"storj-registry")
-	out, err := c.CombinedOutput()
-	s.log.Info("Container is stopped", zap.String("output", string(out)))
-	if err != nil {
-		return errs.New(string(out))
-	}
-	return nil
+	return s.supervisor.Stop()
 }
 
 type Image struct {
@@ -113,7 +81,7 @@ type Image struct {
 func (s Service) RemoteImages() ([]Image, error) {
 	images := make([]Image, 0)
 	ctx := context.TODO()
-	url := "http://localhost:9999/v2/_catalog"
+	url := "http://" + base + "/v2/_catalog"
 	catalog, err := httpCall(ctx, "GET", url, nil)
 	if err != nil {
 		return images, errs.Wrap(err)
@@ -128,7 +96,7 @@ func (s Service) RemoteImages() ([]Image, error) {
 	}
 
 	for _, name := range k.Repositories {
-		url = fmt.Sprintf("http://localhost:9999/v2/%s/tags/list", name)
+		url = fmt.Sprintf("http://%s/5000/v2/%s/tags/list", base, name)
 		tagsResponse, err := httpCall(ctx, "GET", url, nil)
 		if err != nil {
 			return nil, errs.Wrap(err)
@@ -197,7 +165,7 @@ func (s Service) Push(name string, tag string) error {
 	c := exec.Command("docker",
 		"tag",
 		name+":"+tag,
-		"localhost:9999/"+ref)
+		base+"/"+ref)
 	out, err := c.CombinedOutput()
 	s.log.Info("Container is tagged", zap.String("output", string(out)))
 	if err != nil {
@@ -206,7 +174,7 @@ func (s Service) Push(name string, tag string) error {
 
 	c = exec.Command("docker",
 		"push",
-		"localhost:9999/"+ref,
+		base+"/"+ref,
 	)
 	out, err = c.CombinedOutput()
 	s.log.Info("Container is pushed", zap.String("output", string(out)))
@@ -220,11 +188,15 @@ func (s Service) Push(name string, tag string) error {
 func (s Service) Pull(name string, tag string) error {
 	c := exec.Command("docker",
 		"pull",
-		"localhost:9999/"+name+":"+tag)
+		base+"/"+name+":"+tag)
 	out, err := c.CombinedOutput()
 	s.log.Info("Container is pulled", zap.String("output", string(out)))
 	if err != nil {
 		return errs.New(string(out))
 	}
 	return nil
+}
+
+func (s Service) Configure(bucket string, grant string) error {
+	return s.supervisor.Configure(bucket, grant)
 }

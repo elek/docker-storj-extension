@@ -82,7 +82,7 @@ func (endpoint *Endpoint) Configure(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = endpoint.service.Create(req.Bucket, req.Grant)
+	err = endpoint.service.Configure(req.Bucket, req.Grant)
 	if err != nil {
 		endpoint.serveJSONError(w, http.StatusInternalServerError, err)
 		return
