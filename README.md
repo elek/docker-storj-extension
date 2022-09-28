@@ -71,39 +71,3 @@ OBJ     2022-07-28 11:36:52    71         docker/registry/v2/repositories/elek/h
 OBJ     2022-06-30 11:17:15    71         docker/registry/v2/repositories/elek/herbstag/_layers/sha256/a0d0a0d46f8b52473982a3c466318f479767577551a53ffc9074c9fa7035982e/link
 OBJ     2022-06-30 11:17:21    71         docker/registry/v2/repositories/elek/herbstag/_layers/sha256/833c7a986ed965eec8fe864223920c366fb0a25dd23edd0bdd2a4428fd0ce1e2/link
 ```
-
-## Development
-
-Extension can be developed locally with:
-
-```
-#only first time
-npm install
-
-
-cd client
-npx vite
-```
-New images can be built and pushed in one step:
-
-```
-docker buildx build --push -t ghcr.io/elek/docker-storj-extension:20220728-1 . 
-```
-
-For local test run it's enough to use `--load`:
-
-```
-docker buildx build --load -t ghcr.io/elek/docker-storj-extension:20220728-1 .
-```
-
-Extension can be updated with:
-
-```
-docker extension update ghcr.io/elek/docker-storj-extension:20220728-3
-```
-
-Dev console can be turned on by:
-
-```
-docker extension dev debug ghcr.io/elek/docker-storj-extension
-```
