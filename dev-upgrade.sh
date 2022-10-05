@@ -2,6 +2,7 @@
 if [ -z "$1" ]
   then
     echo "No argument supplied"
+    echo "Usage: $0 VERSION"
     exit 1
 fi
 
